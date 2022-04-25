@@ -11,6 +11,9 @@ def get_safe_path(pathname):
     else:
         return '%s/index.html' % pathname
 
+def lambda_render_page_lists(x, y, func):
+    return lambda xx: func(xx, y)
+    
 def get_pages(data):
     return [
         Page('index.html', render_index),
@@ -21,16 +24,16 @@ def get_pages(data):
     ] + [
         Page(
             get_safe_path(page['path']), 
-            lambda x: render_page(x, page),
+            lambda_render_page_lists(data, page, func=render_page)
         ) for page in data['pages']
     ] + [
         Page(
             get_safe_path(redirect['path']), 
-            lambda x: render_redirect(x, redirect),
+            lambda_render_page_lists(data, redirect, func=render_redirect)
         ) for redirect in data['redirects']
     ] + [
         Page(
-            get_safe_path(website['path']), 
-            lambda x: render_personal_website(x, website),
-        ) for website in data['personal']
+            get_safe_path(website_personal['path']), 
+            lambda_render_page_lists(data, website_personal, func=render_personal_website),
+        ) for website_personal in data['personal']
     ]
